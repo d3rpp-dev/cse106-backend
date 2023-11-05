@@ -49,3 +49,10 @@ compatibility_date = "2023-10-30"
 # [[migrations]]
 # tag = "v1"
 # new_classes = ["MyDurableObject"]
+
+# Cloudflare D1 Bindings
+[[d1_databases]]
+binding = "DB"
+database_id = "c482ee3b-938d-435a-994f-d94577e4eccf"
+database_name = "nzgvt-test"
+preview_database_id = "DB"
