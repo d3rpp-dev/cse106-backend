@@ -1,24 +1,21 @@
-import { Router } from 'itty-router';
-import { createCors, withParams } from './itty-patches';
+import { IRequest, Router, createCors, withParams } from 'itty-router';
 import { auth_middleware } from './handlers/auth';
+import { HTTP_STATUS_CODES } from './interfaces/http';
 
 const { corsify, preflight } = createCors();
-const router = Router();
+
+const router = Router<IRequest, [Env, ExecutionContext]>();
 
 router
 	// Security / CORS
 	.all('*', preflight, withParams)
 	// Auth Router Middleware
 	.all('/auth/*', auth_middleware)
-	// redirect to my homepage from the base url
 	.all(
-		'/',
+		'/coffee',
 		() =>
 			new Response(null, {
-				status: 303,
-				headers: {
-					Location: 'https://d3rpp.dev',
-				},
+				status: HTTP_STATUS_CODES.your_fault.im_a_teapot,
 			}),
 	)
 	// Catch-all with a 404

@@ -17,6 +17,7 @@ export const HTTP_STATUS_CODES = {
 		liar: 401,
 		unpriveliged: 403,
 		blind_ass: 404,
+		im_a_teapot: 418,
 	},
 	my_fault: {
 		broken: 500,

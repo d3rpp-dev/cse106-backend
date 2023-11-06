@@ -1,18 +1,21 @@
 {
   "name": "cse106-backend",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "start": "wrangler dev",
-	"fmt": "prettier -w ./src/**/*"
+    "fmt": "prettier -w ./src/**/*"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20230419.0",
-    "itty-router": "^3.0.12",
+    "@cloudflare/workers-types": "^4.20231025.0",
+    "itty-router": "^4.0.0",
     "prettier": "^3.0.3",
-    "typescript": "^5.0.4",
-    "wrangler": "^3.0.0"
+    "typescript": "^5.2.2",
+    "wrangler": "^3.15.0"
+  },
+  "dependencies": {
+    "ulid": "^2.3.0"
   }
 }

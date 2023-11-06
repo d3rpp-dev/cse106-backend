@@ -1,4 +1,4 @@
-import { json, error } from './itty-patches';
+import { json, error } from 'itty-router';
 import { router, corsify } from './router';
 
 export default {
