@@ -1,6 +1,7 @@
 import { IRequest, Router, createCors, withParams } from 'itty-router';
 import { auth_middleware } from './handlers/auth';
 import { HTTP_STATUS_CODES } from './interfaces/http';
+import { issues_middleware } from './handlers/issues';
 
 const { corsify, preflight } = createCors();
 
@@ -11,6 +12,7 @@ router
 	.all('*', preflight, withParams)
 	// Auth Router Middleware
 	.all('/auth/*', auth_middleware)
+	.all('/api/issues', issues_middleware)
 	.all(
 		'/coffee',
 		() =>
