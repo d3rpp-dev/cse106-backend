@@ -2,20 +2,20 @@ export interface ITest {
 	/**
 	 * ULID
 	 */
-	id: string,
+	id: string;
 	/**
 	 * date of test report, set by user
 	 */
-	ts: number,
+	ts: number;
 	/**
 	 * test result
 	 *
 	 * - `true` = Positive
 	 * - `false` = Negative
 	 */
-	result: boolean,
+	result: boolean;
 	/**
 	 * Type of test, e.g. RAT, PCR
 	 */
-	type: string
+	type: string;
 }

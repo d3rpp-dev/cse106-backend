@@ -1,4 +1,4 @@
-import { QRCodeStatus } from "./qrcode"
+import { QRCodeStatus } from './qrcode';
 
 /**
  * Vaccination Status
@@ -8,7 +8,7 @@ import { QRCodeStatus } from "./qrcode"
 export enum VaccinatonStatus {
 	None = 0,
 	Partial = 1,
-	Full = 2
+	Full = 2,
 }
 
 /**
@@ -20,29 +20,29 @@ export interface IUser {
 	 *
 	 * if this is instead the string "admin-${ULID}" then it is an admin user
 	 */
-	id: string
+	id: string;
 
-	given_name: string,
-	family_name: string,
+	given_name: string;
+	family_name: string;
 	/**
 	 * its a number, but we need to be ready if that changes
 	 */
-	national_health_index: string,
+	national_health_index: string;
 	/**
 	 * stored at UTC timestamp
 	 */
-	dob_ts: number,
-	qrcode_status: QRCodeStatus,
+	dob_ts: number;
+	qrcode_status: QRCodeStatus;
 	/**
 	 * Do not store this next to user, do a lookup
 	 */
-	vaccine_status: VaccinatonStatus,
+	vaccine_status: VaccinatonStatus;
 	/**
 	 * Do not store this next to user, do a lookup
 	 */
-	test_count: number,
+	test_count: number;
 	/**
 	 * Do not store this next to user, do a lookup
 	 */
-	issue_count: number
+	issue_count: number;
 }

@@ -14,5 +14,8 @@ interface Env {
 	// Example binding to a Queue. Learn more at https://developers.cloudflare.com/queues/javascript-apis/
 	// MY_QUEUE: Queue;
 
-	D1: D1Database
+	D1: D1Database;
+
+	ENVIRONMENT: string;
+	PRIVATE_KEY: string;
 }
