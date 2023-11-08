@@ -4,6 +4,10 @@ export interface ITest {
 	 */
 	id: string;
 	/**
+	 * User Id
+	 */
+	user_id: string;
+	/**
 	 * date of test report, set by user
 	 */
 	ts: number;

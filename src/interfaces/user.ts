@@ -11,16 +11,18 @@ export enum VaccinatonStatus {
 	Full = 2,
 }
 
-/**
- * Base Interface for a User
- */
-export interface IUser {
+export interface DBUser {
 	/**
 	 * these will be randomly generated ULIDs
 	 *
 	 * if this is instead the string "admin-${ULID}" then it is an admin user
 	 */
 	id: string;
+
+	/**
+	 * Email Address
+	 */
+	email: string;
 
 	given_name: string;
 	family_name: string;
@@ -32,7 +34,16 @@ export interface IUser {
 	 * stored at UTC timestamp
 	 */
 	dob_ts: number;
+	/**
+	 * QR Code Status
+	 */
 	qrcode_status: QRCodeStatus;
+}
+
+/**
+ * Base Interface for a User
+ */
+export interface IUser extends DBUser {
 	/**
 	 * Do not store this next to user, do a lookup
 	 */

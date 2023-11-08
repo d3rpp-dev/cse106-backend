@@ -2,21 +2,21 @@ export interface IVaccination {
 	/**
 	 * ULID for the primary key
 	 */
-	id: string,
+	id: string;
 	/**
 	 * the user who was given the vaccination
 	 */
-	user_id: string,
+	user_id: string;
 	/**
 	 * Timestamp of vaccination status
 	 */
-	ts: string,
+	ts: string;
 	/**
 	 * Brand of vaccination (e.g. Pfizer)
 	 */
-	brand: string,
+	brand: string;
 	/**
 	 * Vaccination Center Location
 	 */
-	location: string
+	location: string;
 }

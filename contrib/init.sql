@@ -23,10 +23,12 @@ DROP TABLE IF EXISTS `users`;
 
 CREATE TABLE IF NOT EXISTS `users` (
 	'id' TEXT PRIMARY KEY,
+	'email' TEXT,
 	'given_name' TEXT,
 	'family_name' TEXT,
 	'nhi' TEXT,
-	'dob_ts' INTEGER
+	'dob_ts' INTEGER,
+	'qrcode_status' INTEGER
 );
 
 -- Vaccinations
@@ -47,6 +49,7 @@ DROP TABLE IF EXISTS `tests`;
 
 CREATE TABLE IF NOT EXISTS `tests` (
 	'id' TEXT PRIMARY KEY,
+	'user_id' TEXT,
 	'ts' INTEGER,
 	'result' INTEGER, -- 0 or 1 = Neg/Pos
 	'type' TEXT
