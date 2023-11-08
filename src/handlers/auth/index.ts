@@ -1,4 +1,4 @@
-import { IRequest, Router, json, status } from 'itty-router';
+import { IRequest, Router } from 'itty-router';
 import { HTTP_STATUS_CODES } from '../../interfaces/http';
 
 import * as JWT from "./jwt";
