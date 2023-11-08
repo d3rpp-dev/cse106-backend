@@ -22,12 +22,12 @@ auth_router.post('/login', async (req: IRequest, env: Env, _ctx: ExecutionContex
 	} else {
 		let body: Schema.LoginRequest = body_parsed_possibility.data;
 
-		let user = await env.D1.prepare('SELECT (*) FROM `users` WHERE email = ?1').bind(body.email).first<DBUser>();
+		let user = await env.D1.prepare('SELECT * FROM `users` WHERE email = ?1').bind(body.email).first<DBUser>();
 
 		if (user === null || user.id === null) {
 			return error(HTTP_STATUS_CODES.your_fault.liar, { message: 'Invalid Username or Password' });
 		} else {
-			let saved_password = await env.D1.prepare('SELECT (hash) FROM `passwords` WHERE user_id = ?1')
+			let saved_password = await env.D1.prepare('SELECT hash FROM `passwords` WHERE user_id = ?1')
 				.bind(user.id)
 				.first<{ hash: string }>();
 
@@ -50,10 +50,10 @@ auth_router.post('/login', async (req: IRequest, env: Env, _ctx: ExecutionContex
 						env.PRIVATE_KEY,
 					);
 
-					const details_query = await env.D1.batch<{ 'count(*)': number }>([
-						env.D1.prepare('SELECT count(*) FROM `issues` WHERE user_id = ?1').bind(user.id),
-						env.D1.prepare('SELECT count(*) FROM `tests` WHERE user_id = ?1').bind(user.id),
-						env.D1.prepare('SELECT count(*) FROM `vaccinations` WHERE user_id = ?1').bind(user.id),
+					const details_query = await env.D1.batch<{ 'count(id)': number }>([
+						env.D1.prepare('SELECT count(id) FROM `issues` WHERE user_id = ?1').bind(user.id),
+						env.D1.prepare('SELECT count(id) FROM `tests` WHERE user_id = ?1').bind(user.id),
+						env.D1.prepare('SELECT count(id) FROM `vaccinations` WHERE user_id = ?1').bind(user.id),
 					]);
 
 					return json(
@@ -71,9 +71,9 @@ auth_router.post('/login', async (req: IRequest, env: Env, _ctx: ExecutionContex
 
 							qrcode_status: user.qrcode_status,
 
-							issue_count: +details_query[0].results[0]['count(*)'],
-							test_count: +details_query[1].results[0]['count(*)'],
-							vaccine_status: +details_query[1].results[0]['count(*)'],
+							issue_count: +details_query[0].results[0]['count(id)'],
+							test_count: +details_query[1].results[0]['count(id)'],
+							vaccine_status: +details_query[1].results[0]['count(id)'],
 						} satisfies IUser & { token: string },
 						{ status: HTTP_STATUS_CODES.done.ok },
 					);
