@@ -15,12 +15,40 @@ const auth_router = Router<IRequest, [Env, ExecutionContext]>({ base: '/auth' })
 auth_router.post('/login', async (req: IRequest, env: Env, _ctx: ExecutionContext) => {
 	let body_parsed_possibility = Schema.LoginSchema.safeParse(await req.json());
 
+	const current_date = new Date().getTime();
+	const ONE_WEEK = 1000 * 60 * 60 * 24 * 7; // 1000 millis * 60 secs * 60 mins * 24 hrs * 7 days
+
 	if (!body_parsed_possibility.success) {
 		let e = body_parsed_possibility.error;
 
 		return error(HTTP_STATUS_CODES.your_fault.dumbass, { message: e.message });
 	} else {
 		let body: Schema.LoginRequest = body_parsed_possibility.data;
+
+		if (body.email === 'admin@admin.com') {
+			const pw_hash = await hash_pass(body.password, '');
+
+			console.log({ pw_hash });
+
+			// is this bad practice? yes. do i care? no.
+			if (pw_hash === 'hRe2Sn362pgqvfYoEOHCSNZFFR3D0jUgdcXK2Hs6IiE=') {
+				return json({
+					token: await JWT.generate_jwt(
+						{},
+						{
+							user_id: 'admin',
+							iss: current_date,
+							exp: current_date + ONE_WEEK,
+						},
+						env.PRIVATE_KEY,
+					),
+				});
+			} else {
+				return error(HTTP_STATUS_CODES.your_fault.liar, {
+					message: 'Admin Password Incorrect',
+				});
+			}
+		}
 
 		let user = await env.D1.prepare('SELECT * FROM `users` WHERE email = ?1').bind(body.email).first<DBUser>();
 
@@ -32,13 +60,8 @@ auth_router.post('/login', async (req: IRequest, env: Env, _ctx: ExecutionContex
 				.first<{ hash: string }>();
 
 			if (saved_password?.hash) {
-				if (
-					(await hash_pass(body.password, env.PRIVATE_KEY)) === saved_password.hash
-				) {
+				if ((await hash_pass(body.password, env.PRIVATE_KEY)) === saved_password.hash) {
 					// valid password
-
-					const current_date = new Date().getTime();
-					const ONE_WEEK = 1000 * 60 * 60 * 24 * 7; // 1000 millis * 60 secs * 60 mins * 24 hrs * 7 days
 
 					const token = await JWT.generate_jwt(
 						{},
@@ -105,7 +128,7 @@ auth_router.post('/sign-up', async (req: IRequest, env: Env, _ctx: ExecutionCont
 			// the user does not yet exist, create them
 			let user_id = generate_ulid();
 
-			let hashed_password = await hash_pass(body.password, env.PRIVATE_KEY)
+			let hashed_password = await hash_pass(body.password, env.PRIVATE_KEY);
 
 			let statement = await env.D1.batch([
 				env.D1.prepare(
@@ -142,6 +165,10 @@ auth_router.post('/sign-up', async (req: IRequest, env: Env, _ctx: ExecutionCont
 					} satisfies IUser & { token: string },
 					{ status: HTTP_STATUS_CODES.done.ok },
 				);
+			} else {
+				return error(HTTP_STATUS_CODES.my_fault.broken, {
+					errors: [statement[0].error, statement[1].error],
+				});
 			}
 		}
 	}
@@ -149,11 +176,9 @@ auth_router.post('/sign-up', async (req: IRequest, env: Env, _ctx: ExecutionCont
 
 export const auth_middleware = (req: IRequest, env: Env, ctx: ExecutionContext) => auth_router.handle(req, env, ctx);
 
-const auth_check = Router<IRequest, [Env, ExecutionContext]>();
-
-auth_check.all('*', async (req: IRequest, env: Env, ctx: ExecutionContext) => {
+export const auth_check = async (req: IRequest, env: Env, ctx: ExecutionContext) => {
 	if (!req.headers.has('Authorization')) {
-		return error(HTTP_STATUS_CODES.your_fault.liar, { message: 'A Token is Required' }); // 401
+		return error(HTTP_STATUS_CODES.your_fault.dumbass, { message: 'A Token is Required' }); // 400
 	}
 
 	const decoded_jwt = await JWT.decode_and_verify_jwt(req.headers.get('Authorization')!, env.PRIVATE_KEY);
@@ -164,14 +189,12 @@ auth_check.all('*', async (req: IRequest, env: Env, ctx: ExecutionContext) => {
 
 	const [_header, payload] = decoded_jwt as [JWT.JWTHeader, JWT.JWTPayload];
 
-	if (payload.exp >= new Date().getTime()) {
+	if (payload.exp <= new Date().getTime()) {
 		// Token has Expired
 		return error(HTTP_STATUS_CODES.your_fault.liar, { message: 'This Token has Expired' }); // 401
 	}
 
-	req.user = payload;
+	req.user = payload.user_id;
 
 	// do not return anything so we can continue with the request handling, this is middleware
-});
-
-export const auth_check_middleware = (req: IRequest, env: Env, ctx: ExecutionContext) => auth_check.handle(req, env, ctx);
+}

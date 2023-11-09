@@ -1,5 +1,5 @@
 import { IRequest, Router, createCors, error, withParams } from 'itty-router';
-import { auth_check_middleware, auth_middleware } from './handlers/auth';
+import { auth_check, auth_middleware } from './handlers/auth';
 import { HTTP_STATUS_CODES } from './interfaces/http';
 import { issues_middleware } from './handlers/issues';
 
@@ -12,6 +12,7 @@ router
 	.all('*', preflight, withParams)
 	// Auth Router Middleware
 	.all('/auth/*', auth_middleware)
+	// Coffee
 	.all(
 		'/coffee',
 		() =>
@@ -20,8 +21,11 @@ router
 			}),
 	)
 	// auth checker, before it can get to the apis it needs to be authenticated
-	.all('/api/*', auth_check_middleware)
-	.all('/api/issues', issues_middleware)
+	//
+	// these are checked in order, and any request that are caught before this handler will be public
+	// any after will require authorisation
+	.all('/api/*', auth_check)
+	.all('/api/issues/*', issues_middleware)
 	// Catch-all with a 404
 	.all('*', () => error(HTTP_STATUS_CODES.your_fault.blind_ass));
 

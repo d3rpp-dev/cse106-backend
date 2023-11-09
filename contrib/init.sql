@@ -5,14 +5,12 @@ CREATE TABLE IF NOT EXISTS `issues` (
 	'id' TEXT PRIMARY KEY,
 	'user_id' TEXT,
 	'subject' TEXT,
+	'description' TEXT,
 	'opened_ts' INTEGER,
 	'closed_ts' INTEGER
 );
 
--- admin password hash - is "admin" - $argon2i$v=19$m=65536,t=4,p=1$Y1BCVXJCMXF5Z0kvakhwWA$J1T5/+mSOY0xZGUOBdiDL8y+UY09yM3NoSfX+5GzAto
-
 DROP TABLE IF EXISTS `passwords`;
-
 
 CREATE TABLE IF NOT EXISTS `passwords` (
 	'user_id' TEXT PRIMARY KEY,

@@ -1,4 +1,4 @@
-import { factory } from "ulid";
+import { factory } from 'ulid';
 
 const ULID = factory(() => {
 	const buffer = new Uint32Array(1);
@@ -7,5 +7,5 @@ const ULID = factory(() => {
 });
 
 export const generate_ulid = () => {
-	return ULID()
-}
+	return ULID();
+};
