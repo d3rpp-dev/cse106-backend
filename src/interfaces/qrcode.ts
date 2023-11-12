@@ -6,12 +6,9 @@ export enum QRCodeStatus {
 }
 
 export interface IQRCode {
-	/**
-	 * URL to an image that will be displayed as the QR Code
-	 */
-	image_link: string;
-	/**
-	 * Expiry date, this will be also in the QR Code itself
-	 */
-	expiry_ts: number;
+	id: string;
+	user_id: string;
+	expiry: number;
+	image_id: string;
+	token: string;
 }

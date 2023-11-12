@@ -59,7 +59,9 @@ DROP TABLE IF EXISTS `qr_codes`;
 
 CREATE TABLE IF NOT EXISTS `qr_codes` (
 	'id' TEXT PRIMARY KEY,
+	'user_id' TEXT,
 	'expiry' INTEGER,
+	'image_id' TEXT,
 	'token' TEXT
 );
 

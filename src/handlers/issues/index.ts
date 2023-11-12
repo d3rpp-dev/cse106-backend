@@ -4,7 +4,7 @@ import { number, string } from 'zod';
 import { HTTP_STATUS_CODES } from '../../interfaces/http';
 import { CreateIssueRequest, createIssueSchema } from './schemas';
 import { generate_ulid } from '../../utils/ulid';
-import { check_admin } from '../auth/check_admin';
+import { check_admin } from '../auth/admin_check';
 
 const issues_router = Router<IRequest, [Env, ExecutionContext]>({ base: '/api/issues/' });
 
@@ -62,8 +62,6 @@ issues_router.get('/', async (req: IRequest, env: Env, _cts: ExecutionContext) =
 		query_params.from_actual = f.data;
 	}
 
-	console.log({ query_params });
-
 	let query;
 
 	if (req.user === 'admin') {
@@ -87,7 +85,6 @@ issues_router.get('/', async (req: IRequest, env: Env, _cts: ExecutionContext) =
 
 	return json({
 		count: query_result.results.length,
-		offset: 0,
 		results: query_result.results,
 	});
 });

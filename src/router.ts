@@ -1,7 +1,10 @@
 import { IRequest, Router, createCors, error, withParams } from 'itty-router';
-import { auth_check, auth_middleware } from './handlers/auth';
+import { auth_middleware } from './handlers/auth';
+import { auth_check } from './handlers/auth/auth_check';
 import { HTTP_STATUS_CODES } from './interfaces/http';
 import { issues_middleware } from './handlers/issues';
+import { qrcode_middleware } from './handlers/qr-code';
+import { get_qrcode_image } from './handlers/qr-code/get_image';
 
 const { corsify, preflight } = createCors();
 
@@ -12,6 +15,8 @@ router
 	.all('*', preflight, withParams)
 	// Auth Router Middleware
 	.all('/auth/*', auth_middleware)
+	// They can't add auth in the request to get the image, so we will put it in the URL
+	.get('/api/qrcodes/get_image/:token', get_qrcode_image)
 	// Coffee
 	.all(
 		'/coffee',
@@ -26,7 +31,8 @@ router
 	// any after will require authorisation
 	.all('/api/*', auth_check)
 	.all('/api/issues/*', issues_middleware)
+	.all('/api/qrcodes/*', qrcode_middleware)
 	// Catch-all with a 404
-	.all('*', () => error(HTTP_STATUS_CODES.your_fault.blind_ass));
+	.all('*', () => error(HTTP_STATUS_CODES.your_fault.blind_ass, {message: "Catch-all 404 Reached"}));
 
 export { router, corsify };

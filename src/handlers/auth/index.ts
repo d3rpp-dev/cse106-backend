@@ -31,6 +31,7 @@ auth_router.post('/login', async (req: IRequest, env: Env, _ctx: ExecutionContex
 			console.log({ pw_hash });
 
 			// is this bad practice? yes. do i care? no.
+			// good luck guessing this password anyway its a salted hash
 			if (pw_hash === 'hRe2Sn362pgqvfYoEOHCSNZFFR3D0jUgdcXK2Hs6IiE=') {
 				return json({
 					token: await JWT.generate_jwt(
@@ -175,26 +176,3 @@ auth_router.post('/sign-up', async (req: IRequest, env: Env, _ctx: ExecutionCont
 });
 
 export const auth_middleware = (req: IRequest, env: Env, ctx: ExecutionContext) => auth_router.handle(req, env, ctx);
-
-export const auth_check = async (req: IRequest, env: Env, ctx: ExecutionContext) => {
-	if (!req.headers.has('Authorization')) {
-		return error(HTTP_STATUS_CODES.your_fault.dumbass, { message: 'A Token is Required' }); // 400
-	}
-
-	const decoded_jwt = await JWT.decode_and_verify_jwt(req.headers.get('Authorization')!, env.PRIVATE_KEY);
-
-	if (typeof decoded_jwt === 'boolean' && decoded_jwt === false) {
-		return error(HTTP_STATUS_CODES.your_fault.liar, { message: 'Invalid Token' }); // 401
-	}
-
-	const [_header, payload] = decoded_jwt as [JWT.JWTHeader, JWT.JWTPayload];
-
-	if (payload.exp <= new Date().getTime()) {
-		// Token has Expired
-		return error(HTTP_STATUS_CODES.your_fault.liar, { message: 'This Token has Expired' }); // 401
-	}
-
-	req.user = payload.user_id;
-
-	// do not return anything so we can continue with the request handling, this is middleware
-}
