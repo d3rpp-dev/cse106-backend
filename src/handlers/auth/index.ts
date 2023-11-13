@@ -93,7 +93,7 @@ auth_router.post('/login', async (req: IRequest, env: Env, _ctx: ExecutionContex
 							national_health_index: user.national_health_index,
 							dob_ts: user.dob_ts,
 
-							qrcode_status: user.qrcode_status,
+							qrcode_status: user.qrcode_status ?? 0,
 
 							issue_count: +details_query[0].results[0]['count(id)'],
 							test_count: +details_query[1].results[0]['count(id)'],

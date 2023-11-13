@@ -75,7 +75,7 @@ qrcode_router.get('/', async (req: IRequest, env: Env, _ctx: ExecutionContext) =
 		);
 
 		return json({
-			token: `https://cse106-backend.d3rpp.dev/api/qrcodes/get_image/${encodeURIComponent(token)}`,
+			url: `https://cse106-backend.d3rpp.dev/api/qrcodes/get_image/${encodeURIComponent(token)}`,
 			exp: qrcode_details.expiry,
 		});
 	}
