@@ -1,12 +1,20 @@
 import { IRequest, Router, createCors, error, withParams } from 'itty-router';
-import { auth_middleware } from './handlers/auth';
+
 import { auth_check } from './handlers/auth/auth_check';
+
 import { HTTP_STATUS_CODES } from './interfaces/http';
+
 import { issues_middleware } from './handlers/issues';
 import { qrcode_middleware } from './handlers/qr-code';
 import { get_qrcode_image } from './handlers/qr-code/get_image';
+import { user_middleware } from './handlers/user';
+import { auth_middleware } from './handlers/auth';
+import { vaccination_middleware } from './handlers/vaccinations';
+import { test_middleware } from './handlers/tests';
 
-const { corsify, preflight } = createCors();
+const { corsify, preflight } = createCors({
+	methods: ["GET", "POST", "PUT", "DELETE"],
+});
 
 const router = Router<IRequest, [Env, ExecutionContext]>();
 
@@ -32,7 +40,10 @@ router
 	.all('/api/*', auth_check)
 	.all('/api/issues/*', issues_middleware)
 	.all('/api/qrcodes/*', qrcode_middleware)
+	.all('/api/user/*', user_middleware)
+	.all('/api/vaccinations/*', vaccination_middleware)
+	.all('/api/tests/*', test_middleware)
 	// Catch-all with a 404
-	.all('*', () => error(HTTP_STATUS_CODES.your_fault.blind_ass, {message: "Catch-all 404 Reached"}));
+	.all('*', () => error(HTTP_STATUS_CODES.your_fault.blind_ass, { message: 'Catch-all 404 Reached' }));
 
 export { router, corsify };

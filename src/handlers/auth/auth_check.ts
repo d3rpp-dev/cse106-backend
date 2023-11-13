@@ -14,7 +14,7 @@ export const auth_check = async (req: IRequest, env: Env, ctx: ExecutionContext)
 		return error(HTTP_STATUS_CODES.your_fault.liar, { message: 'Invalid Token' }); // 401
 	}
 
-	const {payload} = decoded_jwt;
+	const { payload } = decoded_jwt;
 
 	if (payload.exp <= new Date().getTime()) {
 		// Token has Expired

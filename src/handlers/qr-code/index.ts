@@ -72,7 +72,7 @@ qrcode_router.get('/', async (req: IRequest, env: Env, _ctx: ExecutionContext) =
 				exp: qrcode_details.expiry,
 			},
 			env.PRIVATE_KEY,
-		)
+		);
 
 		return json({
 			token: `https://cse106-backend.d3rpp.dev/api/qrcodes/get_image/${encodeURIComponent(token)}`,
@@ -81,7 +81,7 @@ qrcode_router.get('/', async (req: IRequest, env: Env, _ctx: ExecutionContext) =
 	}
 });
 
-qrcode_router.get("/requests", async (req: IRequest, env: Env, _ctx: ExecutionContext) => {
+qrcode_router.get('/requests', async (req: IRequest, env: Env, _ctx: ExecutionContext) => {
 	const admin_check = check_admin(req);
 	if (admin_check !== null) return admin_check;
 
@@ -102,20 +102,23 @@ qrcode_router.get("/requests", async (req: IRequest, env: Env, _ctx: ExecutionCo
 		query_params.from_actual = f.data;
 	}
 
-	const requests = await env.D1.prepare(`SELECT users.*, COUNT(vaccinations.id) AS vaccine_count FROM users LEFT JOIN vaccinations ON users.id = vaccinations.user_id WHERE users.qrcode_status = ?1 and users.dob_ts >= ?2 GROUP BY users.id ORDER BY users.dob_ts DESC LIMIT ?3`)
-		.bind(QRCodeStatus.Requested, query_params.from_actual, query_params.limit_actual).run();
+	const requests = await env.D1.prepare(
+		`SELECT users.*, COUNT(vaccinations.id) AS vaccine_count FROM users LEFT JOIN vaccinations ON users.id = vaccinations.user_id WHERE users.qrcode_status = ?1 and users.dob_ts >= ?2 GROUP BY users.id ORDER BY users.dob_ts DESC LIMIT ?3`,
+	)
+		.bind(QRCodeStatus.Requested, query_params.from_actual, query_params.limit_actual)
+		.run();
 
 	if (!requests.success) {
 		return error(HTTP_STATUS_CODES.my_fault.broken, {
-			message: requests.error
+			message: requests.error,
 		});
 	} else {
 		return json({
 			count: requests.results.length,
-			results: requests.results
+			results: requests.results,
 		});
 	}
-})
+});
 
 // getting the image asset is implemented in ./get_image.ts and handles auth itself with its own token,
 // you must generate your own token from the above function
@@ -127,37 +130,42 @@ qrcode_router.put('/approve/:user_id', async (req: IRequest, env: Env, _ctx: Exe
 	const ONE_YEAR = 1000 * 60 * 60 * 24 * 365; // 1000 millis * 60 secs * 60 mins * 24 hrs * 365 days
 	const exp = new Date().getTime() + ONE_YEAR;
 
-	const vaccination_status = await env.D1.prepare(`SELECT count(*) FROM \`vaccinations\` WHERE user_id = ?1`).bind(req.params.user_id).first<{ 'count(*)': number }>();
+	const vaccination_status = await env.D1.prepare(`SELECT count(*) FROM \`vaccinations\` WHERE user_id = ?1`)
+		.bind(req.params.user_id)
+		.first<{ 'count(*)': number }>();
 
 	// generate and store QRCode
-	const qrcode_token = await generate_jwt<{ type: string }, { user_id: string, exp: number, vaccination_status: number }>({ type: "QR" }, {
-		user_id: req.params.user_id,
-		exp,
-		vaccination_status: vaccination_status?.['count(*)'] ?? 0
-	}, env.PRIVATE_KEY);
+	const qrcode_token = await generate_jwt<{ type: string }, { user_id: string; exp: number; vaccination_status: number }>(
+		{ type: 'QR' },
+		{
+			user_id: req.params.user_id,
+			exp,
+			vaccination_status: vaccination_status?.['count(*)'] ?? 0,
+		},
+		env.PRIVATE_KEY,
+	);
 
 	const qrcode_id = generate_ulid();
 
 	try {
-		const image_response = await fetch(`https://quickchart.io/qr?text=${encodeURIComponent(qrcode_token)}&format=png&size=800`)
+		const image_response = await fetch(`https://quickchart.io/qr?text=${encodeURIComponent(qrcode_token)}&format=png&size=800`);
 
 		const image = await env.R2.put(qrcode_id, await image_response.arrayBuffer());
 
 		if (image === null) {
 			return error(HTTP_STATUS_CODES.my_fault.broken, {
-				message: "Failed to generate QR Code"
+				message: 'Failed to generate QR Code',
 			});
 		}
 
-		await env.D1
-			.prepare(`INSERT INTO \`qr_codes\` (id, user_id, expiry, image_id, token) VALUES (?1, ?2, ?3, ?4, ?5)`)
+		await env.D1.prepare(`INSERT INTO \`qr_codes\` (id, user_id, expiry, image_id, token) VALUES (?1, ?2, ?3, ?4, ?5)`)
 			.bind(generate_ulid(), req.params.user_id, exp, qrcode_id, qrcode_token)
 			.run();
 
 		return new Response(null, { status: HTTP_STATUS_CODES.done.empty });
 	} catch (_e) {
 		return error(HTTP_STATUS_CODES.my_fault.broken, {
-			message: "Failed to generate QR Code"
+			message: 'Failed to generate QR Code',
 		});
 	}
 });

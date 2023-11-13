@@ -12,15 +12,15 @@ export interface JWTPayload {
 	exp: number;
 }
 
-const arrayBufferToBase64 = ( buffer: ArrayBuffer ) => {
-    var binary = '';
-    var bytes = new Uint8Array( buffer );
-    var len = bytes.byteLength;
-    for (var i = 0; i < len; i++) {
-        binary += String.fromCharCode( bytes[ i ] );
-    }
-    return btoa( binary );
-}
+const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
+	var binary = '';
+	var bytes = new Uint8Array(buffer);
+	var len = bytes.byteLength;
+	for (var i = 0; i < len; i++) {
+		binary += String.fromCharCode(bytes[i]);
+	}
+	return btoa(binary);
+};
 
 const hash_jwt = async (header: string, payload: string, key: string): Promise<[string, string, string]> => {
 	const header_and_payload = new TextEncoder().encode(`${header}.${payload}${key}`);
@@ -44,17 +44,17 @@ export const generate_jwt = async <Header = JWTHeader, Payload = JWTPayload>(
 export const decode_and_verify_jwt = async <Header = JWTHeader, Payload = JWTPayload>(
 	jwt: string,
 	key: string,
-): Promise<{status: false} | {status: true, header: Header, payload: Payload}> => {
+): Promise<{ status: false } | { status: true; header: Header; payload: Payload }> => {
 	const split = jwt.split('.');
-	if (split.length !== 3) return {status: false};
+	if (split.length !== 3) return { status: false };
 
 	const [header, payload, claimed_hash] = split;
 
 	const [_header, _payload, actual_hash] = await hash_jwt(header, payload, key);
 
 	if (actual_hash === claimed_hash) {
-		return {status: true, header: JSON.parse(atob(header)), payload: JSON.parse(atob(payload))};
+		return { status: true, header: JSON.parse(atob(header)), payload: JSON.parse(atob(payload)) };
 	} else {
-		return {status: false};
+		return { status: false };
 	}
 };

@@ -4,17 +4,20 @@ import { decode_and_verify_jwt } from '../auth/jwt';
 import { IQRCode, QRCodeStatus } from '../../interfaces/qrcode';
 
 export const get_qrcode_image = async (req: IRequest, env: Env, _ctx: ExecutionContext) => {
-	const decoded_jwt_maybe = await decode_and_verify_jwt<{}, { qrcode_id: string; exp: number }>(decodeURIComponent(req.params.token), env.PRIVATE_KEY);
+	const decoded_jwt_maybe = await decode_and_verify_jwt<{}, { qrcode_id: string; exp: number }>(
+		decodeURIComponent(req.params.token),
+		env.PRIVATE_KEY,
+	);
 
 	console.log({
 		decoded: decoded_jwt_maybe,
-		token: decodeURIComponent(req.params.token)
+		token: decodeURIComponent(req.params.token),
 	});
 
 	if (decoded_jwt_maybe.status == false) {
 		return error(HTTP_STATUS_CODES.your_fault.unpriveliged, { message: 'Invalid Token' });
 	} else {
-		const {payload} = decoded_jwt_maybe;
+		const { payload } = decoded_jwt_maybe;
 
 		if (payload.exp <= new Date().getTime()) {
 			// we can interpolate since we have verified trusted input
@@ -23,7 +26,9 @@ export const get_qrcode_image = async (req: IRequest, env: Env, _ctx: ExecutionC
 				.run<IQRCode>();
 			await env.R2.delete(payload.qrcode_id);
 			await env.D1.prepare(`DELETE FROM \`qr_codes\` WHERE image_id = ?1`).bind(payload.qrcode_id).run();
-			await env.D1.prepare(`UPDATE \`users\` SET qrcode_status = ?1 WHERE id = ?2`).bind(QRCodeStatus.NotRequested, user_id.results[0].user_id).run();
+			await env.D1.prepare(`UPDATE \`users\` SET qrcode_status = ?1 WHERE id = ?2`)
+				.bind(QRCodeStatus.NotRequested, user_id.results[0].user_id)
+				.run();
 
 			return error(HTTP_STATUS_CODES.your_fault.dumbass, {
 				message: 'QR Code is Expired',
