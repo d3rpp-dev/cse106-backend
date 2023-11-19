@@ -8,10 +8,10 @@ export const auth_check = async (req: IRequest, env: Env, ctx: ExecutionContext)
 		return error(HTTP_STATUS_CODES.your_fault.dumbass, { message: 'A Token is Required' }); // 400
 	}
 
-	let token = req.headers.get("Authorization")!;
+	let token = req.headers.get('Authorization')!;
 
-	if (token.startsWith("Bearer")) {
-		token = token.split(" ")[1];
+	if (token.startsWith('Bearer')) {
+		token = token.split(' ')[1];
 	}
 
 	const decoded_jwt = await JWT.decode_and_verify_jwt(token, env.PRIVATE_KEY);

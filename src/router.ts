@@ -13,7 +13,7 @@ import { vaccination_middleware } from './handlers/vaccinations';
 import { test_middleware } from './handlers/tests';
 
 const { corsify, preflight } = createCors({
-	methods: ["GET", "POST", "PUT", "DELETE"],
+	methods: ['GET', 'POST', 'PUT', 'DELETE'],
 });
 
 const router = Router<IRequest, [Env, ExecutionContext]>();
@@ -40,7 +40,7 @@ router
 	.all('/api/*', auth_check)
 	.all('/api/issues/*', issues_middleware)
 	.all('/api/qrcodes/*', qrcode_middleware)
-	.all('/api/user/*', user_middleware)
+	.all('/api/users/*', user_middleware)
 	.all('/api/vaccinations/*', vaccination_middleware)
 	.all('/api/tests/*', test_middleware)
 	// Catch-all with a 404

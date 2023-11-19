@@ -46,6 +46,7 @@ export const get_qrcode_image = async (req: IRequest, env: Env, _ctx: ExecutionC
 		const headers = new Headers();
 		object.writeHttpMetadata(headers);
 		headers.set('etag', object.httpEtag);
+		headers.set('Content-Type', 'image/png');
 
 		return new Response(object.body, {
 			headers,
