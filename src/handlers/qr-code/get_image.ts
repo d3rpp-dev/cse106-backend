@@ -2,16 +2,17 @@ import { IRequest, error } from 'itty-router';
 import { HTTP_STATUS_CODES } from '../../interfaces/http';
 import { decode_and_verify_jwt } from '../auth/jwt';
 import { IQRCode, QRCodeStatus } from '../../interfaces/qrcode';
+import base64url from 'base64url';
 
 export const get_qrcode_image = async (req: IRequest, env: Env, _ctx: ExecutionContext) => {
 	const decoded_jwt_maybe = await decode_and_verify_jwt<{}, { qrcode_id: string; exp: number }>(
-		decodeURIComponent(req.params.token),
+		base64url.decode(req.params.token),
 		env.PRIVATE_KEY,
 	);
 
 	console.log({
 		decoded: decoded_jwt_maybe,
-		token: decodeURIComponent(req.params.token),
+		token: base64url.decode(req.params.token),
 	});
 
 	if (decoded_jwt_maybe.status == false) {

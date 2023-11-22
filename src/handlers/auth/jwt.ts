@@ -1,4 +1,4 @@
-export interface JWTHeader {}
+export interface JWTHeader { }
 
 export interface JWTPayload {
 	user_id: string;
@@ -44,10 +44,11 @@ export const generate_jwt = async <Header = JWTHeader, Payload = JWTPayload>(
 export const decode_and_verify_jwt = async <Header = JWTHeader, Payload = JWTPayload>(
 	jwt: string,
 	key: string,
-): Promise<{ status: false } | { status: true; header: Header; payload: Payload }> => {
+): Promise<{ status: false, message: string } | { status: true; header: Header; payload: Payload }> => {
 	const split = jwt.split('.');
-	if (split.length !== 3) return { status: false };
+	if (split.length !== 3) return { status: false, message: "JWT does not have 3 sections" };
 
+	// these should encoded base64 strings
 	const [header, payload, claimed_hash] = split;
 
 	const [_header, _payload, actual_hash] = await hash_jwt(header, payload, key);
@@ -55,6 +56,6 @@ export const decode_and_verify_jwt = async <Header = JWTHeader, Payload = JWTPay
 	if (actual_hash === claimed_hash) {
 		return { status: true, header: JSON.parse(atob(header)), payload: JSON.parse(atob(payload)) };
 	} else {
-		return { status: false };
+		return { status: false, message: `JWT has Incorrect Hash - ${actual_hash} != ${claimed_hash}` };
 	}
 };

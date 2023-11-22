@@ -43,6 +43,7 @@ auth_router.post('/login', async (req: IRequest, env: Env, _ctx: ExecutionContex
 						},
 						env.PRIVATE_KEY,
 					),
+					id: "admin"
 				});
 			} else {
 				return error(HTTP_STATUS_CODES.your_fault.liar, {

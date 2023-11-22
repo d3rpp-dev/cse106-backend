@@ -5,6 +5,8 @@ import { IQRCode, QRCodeStatus } from '../../interfaces/qrcode';
 import { generate_jwt } from '../auth/jwt';
 import { generate_ulid } from '../../utils/ulid';
 import { number } from 'zod';
+import base64url from 'base64url';
+import { log_event } from '../../utils/log';
 
 const qrcode_router = Router<IRequest, [Env, ExecutionContext]>({ base: '/api/qrcodes' });
 
@@ -75,7 +77,7 @@ qrcode_router.get('/', async (req: IRequest, env: Env, _ctx: ExecutionContext) =
 		);
 
 		return json({
-			url: `https://cse106-backend.d3rpp.dev/api/qrcodes/get_image/${encodeURIComponent(token)}`,
+			url: `https://cse106-backend.d3rpp.dev/api/qrcodes/get_image/${base64url.encode(token)}`,
 			exp: qrcode_details.expiry,
 		});
 	}
@@ -146,6 +148,8 @@ qrcode_router.put('/approve/:user_id', async (req: IRequest, env: Env, _ctx: Exe
 	);
 
 	const qrcode_id = generate_ulid();
+
+	await log_event(env.D1, "qrcode_approval", `Admin has approved QRCode for ${req.params.user_id}, it will expire on ${new Date(exp).toISOString()} and has a QR Code ID of ${qrcode_id}`);
 
 	try {
 		const image_response = await fetch(`https://quickchart.io/qr?text=${encodeURIComponent(qrcode_token)}&format=png&size=800`);

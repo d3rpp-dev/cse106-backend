@@ -5,6 +5,7 @@ import { HTTP_STATUS_CODES } from '../../interfaces/http';
 import { CreateIssueRequest, createIssueSchema } from './schemas';
 import { generate_ulid } from '../../utils/ulid';
 import { check_admin } from '../auth/admin_check';
+import { log_event } from '../../utils/log';
 
 const issues_router = Router<IRequest, [Env, ExecutionContext]>({ base: '/api/issues/' });
 
@@ -26,6 +27,8 @@ issues_router.post('/create', async (req: IRequest, env: Env, _ctx: ExecutionCon
 		)
 			.bind(issue_id, req.user, body.subject, body.description, new Date().getTime(), 0)
 			.run();
+
+		await log_event(env.D1, "issue_created", `User #${req.user} has created an Issue with ID ${issue_id} and Subject ${body.subject}`);
 
 		if (!query.success) {
 			return error(HTTP_STATUS_CODES.my_fault.broken, {
