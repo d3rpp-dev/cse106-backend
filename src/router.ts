@@ -11,6 +11,7 @@ import { user_middleware } from './handlers/user';
 import { auth_middleware } from './handlers/auth';
 import { vaccination_middleware } from './handlers/vaccinations';
 import { test_middleware } from './handlers/tests';
+import { logs_middleware } from './handlers/logs';
 
 const { corsify, preflight } = createCors({
 	methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -43,6 +44,7 @@ router
 	.all('/api/users/*', user_middleware)
 	.all('/api/vaccinations/*', vaccination_middleware)
 	.all('/api/tests/*', test_middleware)
+	.all('/api/logs/*', logs_middleware)
 	// Catch-all with a 404
 	.all('*', () => error(HTTP_STATUS_CODES.your_fault.blind_ass, { message: 'Catch-all 404 Reached' }));
 
