@@ -16,10 +16,10 @@ test_router.post('/add', async (req: IRequest, env: Env, _ctx: ExecutionContext)
 		const test_id = generate_ulid();
 
 		const query_result = await env.D1.prepare('INSERT INTO tests (id, user_id, ts, result, type) VALUES (?1, ?2, ?3, ?4, ?5)')
-			.bind(test_id, req.user, new Date().getTime(), body_parsed.result, body_parsed.type)
+			.bind(test_id, req.user, new Date().getTime(), body_parsed.result, body_parsed.test_type)
 			.run();
 
-		await log_event(env.D1, "test_uploaded", `User #${req.user} has uploaded a ${body_parsed.type} Test, with a result of ${body_parsed.result === 0 ? "Negative" : "Positive"}`);
+		await log_event(env.D1, "test_uploaded", `User #${req.user} has uploaded a ${body_parsed.test_type} Test, with a result of ${body_parsed.result === 0 ? "Negative" : "Positive"}`);
 
 		if (query_result.success) {
 			return json({
