@@ -74,7 +74,7 @@ user_router.get('/list', async (req: IRequest, env: Env, _ctx: ExecutionContext)
 		query_params.limit_actual = l.data;
 	}
 
-	let f = number().gt(0).lte(new Date().getTime()).safeParse(from);
+	let f = number().gt(0).lte(new Date().getTime() / 1000).safeParse(from);
 	if (f.success) {
 		query_params.from_actual = f.data;
 	}

@@ -25,7 +25,7 @@ issues_router.post('/create', async (req: IRequest, env: Env, _ctx: ExecutionCon
 		let query = await env.D1.prepare(
 			'INSERT INTO `issues` (id, user_id, subject, description, opened_ts, closed_ts) VALUES (?1, ?2, ?3, ?4, ?5, ?6)',
 		)
-			.bind(issue_id, req.user, body.subject, body.description, new Date().getTime(), 0)
+			.bind(issue_id, req.user, body.subject, body.description, new Date().getTime() / 1000, 0)
 			.run();
 
 		await log_event(env.D1, "issue_created", `User #${req.user} has created an Issue with ID ${issue_id} and Subject ${body.subject}`);
@@ -60,7 +60,7 @@ issues_router.get('/', async (req: IRequest, env: Env, _cts: ExecutionContext) =
 		query_params.limit_actual = l.data;
 	}
 
-	let f = number().gt(0).lte(new Date().getTime()).safeParse(from);
+	let f = number().gt(0).lte(new Date().getTime() / 1000).safeParse(from);
 	if (f.success) {
 		query_params.from_actual = f.data;
 	}
@@ -124,7 +124,7 @@ issues_router.put('/:id/close', async (req: IRequest, env: Env, _ctx: ExecutionC
 		return error(HTTP_STATUS_CODES.your_fault.dumbass, { message: 'provided id is invalid' });
 	} else {
 		let query = await env.D1.prepare('UPDATE `issues` SET closed_ts = ?1 WHERE id = ?2')
-			.bind(new Date().getTime(), id_parsed.data)
+			.bind(new Date().getTime() / 1000, id_parsed.data)
 			.run();
 		if (!query.success) {
 			return error(HTTP_STATUS_CODES.my_fault.broken, { message: query.error });

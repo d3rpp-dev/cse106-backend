@@ -18,7 +18,7 @@ vaccination_router.post('/add', async (req: IRequest, env: Env, _ctx: ExecutionC
 		const vaccine_id = generate_ulid();
 
 		const query_result = await env.D1.prepare('INSERT INTO vaccinations (id, user_id, ts, brand, location) VALUES (?1, ?2, ?3, ?4, ?5)')
-			.bind(vaccine_id, body_parsed.user, new Date().getTime(), body_parsed.brand, body_parsed.location)
+			.bind(vaccine_id, body_parsed.user, new Date().getTime() / 1000, body_parsed.brand, body_parsed.location)
 			.run();
 
 		if (query_result.success) {

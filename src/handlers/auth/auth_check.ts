@@ -22,7 +22,7 @@ export const auth_check = async (req: IRequest, env: Env, ctx: ExecutionContext)
 
 	const { payload } = decoded_jwt;
 
-	if (payload.exp <= new Date().getTime()) {
+	if (payload.exp <= new Date().getTime() / 1000) {
 		// Token has Expired
 		return error(HTTP_STATUS_CODES.your_fault.liar, { message: 'This Token has Expired' }); // 401
 	}
