@@ -20,7 +20,7 @@ export const get_qrcode_image = async (req: IRequest, env: Env, _ctx: ExecutionC
 	} else {
 		const { payload } = decoded_jwt_maybe;
 
-		if (payload.exp <= new Date().getTime()) {
+		if (payload.exp <= new Date().getTime() / 1000) {
 			// we can interpolate since we have verified trusted input
 			const user_id = await env.D1.prepare(`SELECT user_id FROM \`qr_codes\` WHERE image_id = ?1`)
 				.bind(payload.qrcode_id)
