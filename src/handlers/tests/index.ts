@@ -4,6 +4,7 @@ import { HTTP_STATUS_CODES } from '../../interfaces/http';
 import { AddTestRequest, AddTestSchema } from './schemas';
 import { generate_ulid } from '../../utils/ulid';
 import { log_event } from '../../utils/log';
+import { ITest } from '../../interfaces/tests';
 
 const test_router = Router<IRequest, [Env, ExecutionContext]>({ base: '/api/tests' });
 
@@ -39,7 +40,14 @@ test_router.get('/', async (req: IRequest, env: Env, _ctx: ExecutionContext) => 
 	const query_result = await env.D1.prepare('SELECT * FROM tests WHERE user_id = ?1').bind(req.user).run();
 
 	if (query_result.success) {
-		return json(query_result.results);
+		return json(query_result.results.map((test) => {
+			return {
+				test_id: test.id,
+				test_date: test.ts,
+				test_type: test.type,
+				result: test.result
+			}
+		}));
 	} else {
 		return error(HTTP_STATUS_CODES.my_fault.broken, {
 			message: query_result.error,
